@@ -6,13 +6,16 @@ from bm25_retrieval import BM25
 from bm25_execution import BM25Execution
 from financial_analysis_swing_trading import  SwingTradeAnalyzer
 from financials_daily_analysis import DailyMetricsAnalyzer
+from mcp_financial_analysis_orchestrator import FinancialAnalysisRunner
+
+stock_ticker = "UNH"
+
 # ======================================================
 # Part 1 API
 # get single stock
-# stock_ticker = "UNH"
 # stock = AlphaVantageSingleStock(stock_ticker)
 # all_data = stock.get_all_data()
-# fetcher = FinancialStatementsFetcher("UNH")
+# fetcher = FinancialStatementsFetcher(stock_ticker)
 # fetcher.fetch_and_save()
 # ======================================================
 # Part 1 to 2 Transcript Extractor
@@ -87,6 +90,12 @@ from financials_daily_analysis import DailyMetricsAnalyzer
 
 # # ======================================================
 # # Part 5 Model Context Protocol - Claude only
+runner = FinancialAnalysisRunner()
+runner.show_available_metrics()
+runner.run_ratio_analysis()
+runner.run_trend_analysis()
+runner.run_comparative_analysis()
+runner.run_custom_analysis()
 
 
 

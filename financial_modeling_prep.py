@@ -30,8 +30,12 @@ class FinancialStatementsFetcher:
             "cash-flow-statement": "cash_flow_statement.json"
         }
 
+        # Ensure the 'data' subdirectory exists
+        os.makedirs("data", exist_ok=True)
+
         for endpoint, filename in statements.items():
             data = self.get_jsonparsed_data(endpoint)
-            with open(filename, "w") as f:
+            filepath = os.path.join("data", filename)
+            with open(filepath, "w") as f:
                 json.dump(data, f, indent=4)
-            print(f"Data saved to {filename}")
+            print(f"Data saved to {filepath}")
