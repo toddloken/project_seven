@@ -1,4 +1,5 @@
 from alpha_vantage_single_stock import AlphaVantageSingleStock
+from financial_modeling_prep import FinancialStatementsFetcher
 from earnings_transcript_extractor import TranscriptExtractor
 from dspy_earnings_call import EarningsCallProcessor, SafeGetter, FinancialExtractorComponent
 from bm25_retrieval import BM25
@@ -11,6 +12,8 @@ from financials_daily_analysis import DailyMetricsAnalyzer
 # stock_ticker = "UNH"
 # stock = AlphaVantageSingleStock(stock_ticker)
 # all_data = stock.get_all_data()
+# fetcher = FinancialStatementsFetcher("UNH")
+# fetcher.fetch_and_save()
 # ======================================================
 # Part 1 to 2 Transcript Extractor
 # extractor = TranscriptExtractor("data/earnings_transcript_data_current_quarter.json", debug=True)
@@ -77,19 +80,13 @@ from financials_daily_analysis import DailyMetricsAnalyzer
 # print("Latest 42Day ATR:", fm_atr_42)
 # print("Latest VWAP:", fm_vwap)
 
-# Create an instance of the analyzer
-analyzer = DailyMetricsAnalyzer('data/daily_data.csv')
+# # Create an instance of the analyzer
+# analyzer = DailyMetricsAnalyzer('data/daily_data.csv')
+# # Print a complete summary
+# analyzer.print_summary()
 
-# Print a complete summary
-analyzer.print_summary()
+# # ======================================================
+# # Part 5 Model Context Protocol - Claude only
 
-# Or access individual metrics
-volume = analyzer.average_daily_volume()
-momentum = analyzer.five_day_momentum()
 
-# Get all metrics and the recommendation at once
-metrics = analyzer.evaluate_daily_metrics()
-if metrics['recommendation']:
-    print(f"Trading recommendation: BUY (Score: {metrics['score']})")
-else:
-    print(f"Trading recommendation: HOLD (Score: {metrics['score']})")
+
