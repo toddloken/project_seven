@@ -4,6 +4,7 @@ from dspy_earnings_call import EarningsCallProcessor, SafeGetter, FinancialExtra
 from bm25_retrieval import BM25
 from bm25_execution import BM25Execution
 from financial_analysis_swing_trading import  SwingTradeAnalyzer
+from financials_daily_analysis import DailyMetricsAnalyzer
 # ======================================================
 # Part 1 API
 # get single stock
@@ -59,19 +60,36 @@ from financial_analysis_swing_trading import  SwingTradeAnalyzer
 # bm25.print_score_explanation(query, doc_id=0)
 
 
-analyzer = SwingTradeAnalyzer('data/daily_data.csv')
+# analyzer = SwingTradeAnalyzer('data/daily_data.csv')
+#
+# # Get the swing trade recommendation
+# fm_score, fm_swing_trade_recommendation = analyzer.get_swing_trade_recommendation()
+#
+# # Print results
+# print("Swing Trade Rating Score:", fm_score)
+# print("Swing Trade Recommendation:", fm_swing_trade_recommendation)
+#
+# # Optional: Print all indicators
+# fm_rsi, fm_atr_14, fm_atr_28, fm_atr_42, fm_vwap = analyzer.get_latest_indicators()
+# print("Latest RSI:", fm_rsi)
+# print("Latest 14Day ATR:", fm_atr_14)
+# print("Latest 28Day ATR:", fm_atr_28)
+# print("Latest 42Day ATR:", fm_atr_42)
+# print("Latest VWAP:", fm_vwap)
 
-# Get the swing trade recommendation
-fm_score, fm_swing_trade_recommendation = analyzer.get_swing_trade_recommendation()
+# Create an instance of the analyzer
+analyzer = DailyMetricsAnalyzer('data/daily_data.csv')
 
-# Print results
-print("Swing Trade Rating Score:", fm_score)
-print("Swing Trade Recommendation:", fm_swing_trade_recommendation)
+# Print a complete summary
+analyzer.print_summary()
 
-# Optional: Print all indicators
-fm_rsi, fm_atr_14, fm_atr_28, fm_atr_42, fm_vwap = analyzer.get_latest_indicators()
-print("Latest RSI:", fm_rsi)
-print("Latest 14Day ATR:", fm_atr_14)
-print("Latest 28Day ATR:", fm_atr_28)
-print("Latest 42Day ATR:", fm_atr_42)
-print("Latest VWAP:", fm_vwap)
+# Or access individual metrics
+volume = analyzer.average_daily_volume()
+momentum = analyzer.five_day_momentum()
+
+# Get all metrics and the recommendation at once
+metrics = analyzer.evaluate_daily_metrics()
+if metrics['recommendation']:
+    print(f"Trading recommendation: BUY (Score: {metrics['score']})")
+else:
+    print(f"Trading recommendation: HOLD (Score: {metrics['score']})")
