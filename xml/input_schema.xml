@@ -1,0 +1,18 @@
+<analysis>
+    <type>ratio_analysis | trend_analysis | comparative_analysis | custom_analysis</type>
+    <companies>
+        <company>SYMBOL1</company>
+        <company>SYMBOL2</company>
+        <!-- Additional companies as needed -->
+    </companies>
+    <metrics>
+        <metric>METRIC1</metric>
+        <metric>METRIC2</metric>
+        <!-- Additional metrics as needed -->
+    </metrics>
+    <timeframe>
+        <start_year>YYYY</start_year>
+        <end_year>YYYY</end_year>
+    </timeframe>
+    <custom_instructions>Detailed instructions for the analysis</custom_instructions>
+</analysis>

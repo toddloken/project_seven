@@ -1,0 +1,24 @@
+<financial_analysis>
+    <summary>
+        <!-- High-level summary of the analysis -->
+    </summary>
+    <metrics>
+        <metric>
+            <name>METRIC_NAME</name>
+            <values>
+                <value year='YYYY' company='SYMBOL'>VALUE</value>
+                <!-- Additional values -->
+            </values>
+            <insights>
+                <!-- Specific insights about this metric -->
+            </insights>
+        </metric>
+        <!-- Additional metrics -->
+    </metrics>
+    <trends>
+        <!-- Overall trends identified in the data -->
+    </trends>
+    <recommendations>
+        <!-- Actionable recommendations based on the analysis -->
+    </recommendations>
+</financial_analysis>

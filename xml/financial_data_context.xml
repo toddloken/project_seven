@@ -1,0 +1,11 @@
+<financial_data>
+  <company symbol='SYMBOL'>
+    <metric name='METRIC_NAME'>
+      <value year='YYYY'>VALUE</value>
+      <value year='YYYY'>VALUE</value>
+      <!-- Additional values -->
+    </metric>
+    <!-- Additional metrics -->
+  </company>
+  <!-- Additional companies -->
+</financial_data>
