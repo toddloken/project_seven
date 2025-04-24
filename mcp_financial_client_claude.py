@@ -54,18 +54,39 @@ class FinancialAnalysisClient:
     Client for performing financial analysis using Claude API with MCP
     """
 
-    def __init__(self, api_key: str, data_dir: str = "./"):
-        """Initialize with API key and data directory"""
+    def __init__(self, api_key: str, data_dir: str = "./", output_dir: str = "./mcp_json_output"):
+        """Initialize with API key, data directory, and output directory"""
         self.api_client = ClaudeAPIClient(api_key)
         self.mcp = FinancialAnalysisMCP(data_dir)
+        self.output_dir = output_dir
+
+        # Create output directory if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
     def get_available_metrics(self) -> Dict[str, List[str]]:
         """Get all available metrics organized by statement type"""
-        return {
+        metrics = {
             "income_statement": self.mcp.get_available_metrics(FinancialStatement.INCOME_STATEMENT),
             "balance_sheet": self.mcp.get_available_metrics(FinancialStatement.BALANCE_SHEET),
             "cash_flow": self.mcp.get_available_metrics(FinancialStatement.CASH_FLOW)
         }
+
+        # Save metrics to JSON file
+        self._save_to_json(metrics, "available_metrics")
+
+        return metrics
+
+    def _save_to_json(self, data: Dict[str, Any], filename_prefix: str) -> None:
+        """Save data to a JSON file in the output directory"""
+        # Create a unique filename with timestamp
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{filename_prefix}_{timestamp}.json"
+        filepath = os.path.join(self.output_dir, filename)
+
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
 
     def perform_ratio_analysis(
             self,
@@ -86,7 +107,13 @@ class FinancialAnalysisClient:
 
         response = self.api_client.send_message(prompt)
         content = self.api_client.extract_content(response)
-        return self.mcp.parse_analysis_response(content)
+        analysis_result = self.mcp.parse_analysis_response(content)
+
+        # Save analysis results to JSON file
+        filename_prefix = f"ratio_analysis_{company}"
+        self._save_to_json(analysis_result, filename_prefix)
+
+        return analysis_result
 
     def perform_trend_analysis(
             self,
@@ -107,7 +134,13 @@ class FinancialAnalysisClient:
 
         response = self.api_client.send_message(prompt)
         content = self.api_client.extract_content(response)
-        return self.mcp.parse_analysis_response(content)
+        analysis_result = self.mcp.parse_analysis_response(content)
+
+        # Save analysis results to JSON file
+        filename_prefix = f"trend_analysis_{company}"
+        self._save_to_json(analysis_result, filename_prefix)
+
+        return analysis_result
 
     def perform_comparative_analysis(
             self,
@@ -128,7 +161,14 @@ class FinancialAnalysisClient:
 
         response = self.api_client.send_message(prompt)
         content = self.api_client.extract_content(response)
-        return self.mcp.parse_analysis_response(content)
+        analysis_result = self.mcp.parse_analysis_response(content)
+
+        # Save analysis results to JSON file
+        company_names = "_".join(companies)
+        filename_prefix = f"comparative_analysis_{company_names}"
+        self._save_to_json(analysis_result, filename_prefix)
+
+        return analysis_result
 
     def perform_custom_analysis(
             self,
@@ -149,4 +189,11 @@ class FinancialAnalysisClient:
 
         response = self.api_client.send_message(prompt)
         content = self.api_client.extract_content(response)
-        return self.mcp.parse_analysis_response(content)
+        analysis_result = self.mcp.parse_analysis_response(content)
+
+        # Save analysis results to JSON file
+        company_names = "_".join(companies)
+        filename_prefix = f"custom_analysis_{company_names}"
+        self._save_to_json(analysis_result, filename_prefix)
+
+        return analysis_result
