@@ -36,7 +36,7 @@ print(f"=========================================")
 print(f"=========================================")
 print(f" Part 1 - Pull Single Stock from API")
 print(f"=========================================")
-production_mode = True
+production_mode = False
 if production_mode:
     stock = AlphaVantageSingleStock(stock_ticker)
     all_data = stock.get_all_data()

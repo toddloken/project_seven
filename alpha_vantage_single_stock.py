@@ -4,7 +4,7 @@ import os
 
 
 class AlphaVantageSingleStock:
-    def __init__(self, ticker_symbol, data_dir='data'):
+    def __init__(self, ticker_symbol, data_dir='C:\\Users\\rocca\\PycharmProjects\\pythonProjectSeven\\data'):
         """
         Initialize the class with a ticker symbol and optional data directory.
         """
@@ -12,25 +12,26 @@ class AlphaVantageSingleStock:
         self.av = AlphaVantage()
         self.data_dir = data_dir
 
-        if not os.path.exists(self.data_dir):
-            os.makedirs(self.data_dir)
-
     def get_market_data(self):
         """Get and save various market data for the stock - saving to file now due to limit on API calls per day"""
+        results = {}
+
         weekly_data = self.av.get_weekly_time_series(self.ticker_symbol)
-        weekly_data.to_csv(f'{self.data_dir}/weekly_data.csv', index=False)
+        if weekly_data is not None:
+            weekly_data.to_csv('C:/Users/rocca/PycharmProjects/pythonProjectSeven/data/weekly_data.csv', index=False)
+            results['weekly_data'] = weekly_data
 
         daily_data = self.av.get_daily_time_series(self.ticker_symbol)
-        daily_data.to_csv(f'{self.data_dir}/daily_data.csv', index=False)
+        if daily_data is not None:
+            daily_data.to_csv('C:/Users/rocca/PycharmProjects/pythonProjectSeven/data/daily_data.csv', index=False)
+            results['daily_data'] = daily_data
 
         insider_data = self.av.get_insider_transactions(self.ticker_symbol)
-        insider_data.to_csv(f'{self.data_dir}/insider_data.csv', index=False)
+        if insider_data is not None:
+            insider_data.to_csv('C:/Users/rocca/PycharmProjects/pythonProjectSeven/data/insider_data.csv', index=False)
+            results['insider_data'] = insider_data
 
-        return {
-            'weekly_data': weekly_data,
-            'daily_data': daily_data,
-            'insider_data': insider_data
-        }
+        return results
 
     def get_earnings_transcripts(self, quarters):
         """
@@ -40,14 +41,14 @@ class AlphaVantageSingleStock:
 
         for quarter in quarters:
             transcript_data = self.av.get_earnings_call_transcript(self.ticker_symbol, quarter)
+            if transcript_data is not None:
+                # Save to JSON file
+                filename = 'C:/Users/rocca/PycharmProjects/pythonProjectSeven/data/earnings_transcript_data_{quarter}.json'
+                with open(filename, 'w') as f:
+                    json.dump(transcript_data, f, indent=4)
 
-            # Save to JSON file
-            filename = f'{self.data_dir}/earnings_transcript_data_{quarter}.json'
-            with open(filename, 'w') as f:
-                json.dump(transcript_data, f, indent=4)
-
-            # Store in results dictionary
-            results[quarter] = transcript_data
+                # Store in results dictionary
+                results[quarter] = transcript_data
 
         return results
 
@@ -66,5 +67,3 @@ class AlphaVantageSingleStock:
             'market_data': market_data,
             'transcript_data': transcript_data
         }
-
-
