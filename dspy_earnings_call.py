@@ -1,3 +1,4 @@
+import os
 import dspy
 from dspy_config import DSPyConfigurator
 
@@ -101,84 +102,141 @@ class FinancialExtractorComponent(dspy.Module):
         """Extract financial information from transcript."""
         extraction = self.extractor(transcript=transcript)
         return extraction
-#
-#
-# class SentimentAnalysisComponent(dspy.Module):
-#     """Component for analyzing sentiment in earnings call transcripts."""
-#
-#     def __init__(self):
-#         super().__init__()
-#         self.analyzer = SentimentAnalyzer()
-#
-#     def forward(self, transcript):
-#         """Analyze sentiment in the transcript."""
-#         sentiment = self.analyzer(transcript=transcript)
-#         return sentiment
-#
-# class ImpactPredictionComponent(dspy.Module):
-#         """Component for predicting stock impact based on earnings analysis."""
-#
-#         def __init__(self):
-#             super().__init__()
-#             self.predictor = ImpactPredictor()
-#
-#         def forward(self, financial_metrics, sentiment_analysis, stock_context):
-#             """Predict stock impact based on earnings analysis."""
-#             formatted_sentiment = f"Overall: {sentiment_analysis.overall_sentiment}\nPositives: {sentiment_analysis.key_positive_points}\nNegatives: {sentiment_analysis.key_negative_points}"
-#
-#             impact = self.predictor(
-#                 financial_metrics=financial_metrics,
-#                 sentiment_analysis=formatted_sentiment,
-#                 stock_context=stock_context
-#             )
-#             return impact
-#
-#
-# class ImpactPredictionComponent(dspy.Module):
-#     """Component for predicting stock impact based on earnings analysis."""
-#
-#     def __init__(self):
-#         super().__init__()
-#         self.predictor = ImpactPredictor()
-#
-#     def forward(self, financial_metrics, sentiment_analysis, stock_context):
-#         """Predict stock impact based on earnings analysis."""
-#         formatted_sentiment = f"Overall: {sentiment_analysis.overall_sentiment}\nPositives: {sentiment_analysis.key_positive_points}\nNegatives: {sentiment_analysis.key_negative_points}"
-#
-#         impact = self.predictor(
-#             financial_metrics=financial_metrics,
-#             sentiment_analysis=formatted_sentiment,
-#             stock_context=stock_context
-#         )
-#         return impact
-#
-#     class EarningsCallPipeline(dspy.Module):
-#         """Modular pipeline for analyzing earnings calls and predicting stock impact."""
-#
-#         def __init__(self):
-#             super().__init__()
-#             self.financial_extractor = FinancialExtractorComponent()
-#             self.sentiment_analyzer = SentimentAnalysisComponent()
-#             self.impact_predictor = ImpactPredictionComponent()
-#
-#         def forward(self, transcript, stock_context):
-#             """Run the full earnings call analysis pipeline."""
-#
-#             # Extract financial information
-#             extraction = self.financial_extractor(transcript=transcript)
-#
-#             # Analyze sentiment
-#             sentiment = self.sentiment_analyzer(transcript=transcript)
-#
-#             # Predict stock impact
-#             impact = self.impact_predictor(
-#                 financial_metrics=extraction.financial_metrics,
-#                 sentiment_analysis=sentiment,
-#                 stock_context=stock_context
-#             )
-#
-#             return {
-#                 "extraction": extraction,
-#                 "sentiment": sentiment,
-#                 "impact": impact
-#             }
+
+
+class SentimentAnalysisComponent(dspy.Module):
+    """Component for analyzing sentiment in earnings call transcripts."""
+
+    def __init__(self):
+        super().__init__()
+        self.analyzer = SentimentAnalyzer()
+
+    def forward(self, transcript):
+        """Analyze sentiment in the transcript."""
+        sentiment = self.analyzer(transcript=transcript)
+        return sentiment
+
+class ImpactPredictionComponent(dspy.Module):
+        """Component for predicting stock impact based on earnings analysis."""
+
+        def __init__(self):
+            super().__init__()
+            self.predictor = ImpactPredictor()
+
+        def forward(self, financial_metrics, sentiment_analysis, stock_context):
+            """Predict stock impact based on earnings analysis."""
+            formatted_sentiment = f"Overall: {sentiment_analysis.overall_sentiment}\nPositives: {sentiment_analysis.key_positive_points}\nNegatives: {sentiment_analysis.key_negative_points}"
+
+            impact = self.predictor(
+                financial_metrics=financial_metrics,
+                sentiment_analysis=formatted_sentiment,
+                stock_context=stock_context
+            )
+            return impact
+
+
+class ImpactPredictionComponent(dspy.Module):
+    """Component for predicting stock impact based on earnings analysis."""
+
+    def __init__(self):
+        super().__init__()
+        self.predictor = ImpactPredictor()
+
+    def forward(self, financial_metrics, sentiment_analysis, stock_context):
+        """Predict stock impact based on earnings analysis."""
+        formatted_sentiment = f"Overall: {sentiment_analysis.overall_sentiment}\nPositives: {sentiment_analysis.key_positive_points}\nNegatives: {sentiment_analysis.key_negative_points}"
+
+        impact = self.predictor(
+            financial_metrics=financial_metrics,
+            sentiment_analysis=formatted_sentiment,
+            stock_context=stock_context
+        )
+        return impact
+
+    class EarningsCallPipeline(dspy.Module):
+        """Modular pipeline for analyzing earnings calls and predicting stock impact."""
+
+        def __init__(self):
+            super().__init__()
+            self.financial_extractor = FinancialExtractorComponent()
+            self.sentiment_analyzer = SentimentAnalysisComponent()
+            self.impact_predictor = ImpactPredictionComponent()
+
+        def forward(self, transcript, stock_context):
+            """Run the full earnings call analysis pipeline."""
+
+            # Extract financial information
+            extraction = self.financial_extractor(transcript=transcript)
+
+            # Analyze sentiment
+            sentiment = self.sentiment_analyzer(transcript=transcript)
+
+            # Predict stock impact
+            impact = self.impact_predictor(
+                financial_metrics=extraction.financial_metrics,
+                sentiment_analysis=sentiment,
+                stock_context=stock_context
+            )
+
+            return {
+                "extraction": extraction,
+                "sentiment": sentiment,
+                "impact": impact
+            }
+
+
+class ResultsProcessor:
+    """Class for processing, printing, and saving earnings call analysis results."""
+
+    def __init__(self, results=None):
+        self.results = results
+
+    def print_results(self, results=None):
+        """Print the earnings call analysis results in a formatted way."""
+        data = results if results is not None else self.results
+
+        if not data:
+            print("No results to display.")
+            return
+
+        print("\n===== EARNINGS CALL ANALYSIS RESULTS =====\n")
+
+        # Print only the requested metrics
+        print(f"Revenue: {SafeGetter.safe_get(data, 'extraction', 'financial_metrics')}")
+        print(f"Guidance: {SafeGetter.safe_get(data, 'extraction', 'guidance')}")
+        print(f"Sentiment: {SafeGetter.safe_get(data, 'sentiment', 'overall_sentiment')}")
+        print(f"Volatility: {SafeGetter.safe_get(data, 'impact', 'impact_magnitude')}")
+        print(f"Financial Metrics: {SafeGetter.safe_get(data, 'extraction', 'financial_metrics')}")
+        print(f"Challenges: {SafeGetter.safe_get(data, 'extraction', 'challenges')}")
+        print(f"Opportunities: {SafeGetter.safe_get(data, 'extraction', 'opportunities')}")
+        print(f"Management Tone: {SafeGetter.safe_get(data, 'extraction', 'management_tone')}")
+
+        print("\n==========================================\n")
+
+    def save_results(self, results=None, filepath="data/dspy_processed_earnings_call.txt"):
+        """Save the earnings call analysis results to a file."""
+        data = results if results is not None else self.results
+
+        if not data:
+            print("No results to save.")
+            return
+
+        # Create data directory if it doesn't exist
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        with open(filepath, 'w') as f:
+            f.write("===== EARNINGS CALL ANALYSIS RESULTS =====\n\n")
+
+            # Write only the requested metrics
+            f.write(f"Revenue: {SafeGetter.safe_get(data, 'extraction', 'financial_metrics')}\n")
+            f.write(f"Guidance: {SafeGetter.safe_get(data, 'extraction', 'guidance')}\n")
+            f.write(f"Sentiment: {SafeGetter.safe_get(data, 'sentiment', 'overall_sentiment')}\n")
+            f.write(f"Volatility: {SafeGetter.safe_get(data, 'impact', 'impact_magnitude')}\n")
+            f.write(f"Financial Metrics: {SafeGetter.safe_get(data, 'extraction', 'financial_metrics')}\n")
+            f.write(f"Challenges: {SafeGetter.safe_get(data, 'extraction', 'challenges')}\n")
+            f.write(f"Opportunities: {SafeGetter.safe_get(data, 'extraction', 'opportunities')}\n")
+            f.write(f"Management Tone: {SafeGetter.safe_get(data, 'extraction', 'management_tone')}\n")
+
+            f.write("\n==========================================\n")
+
+        print(f"Results saved to {filepath}")

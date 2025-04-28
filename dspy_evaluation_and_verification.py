@@ -1,4 +1,4 @@
-from dspy import Evaluate, SelfCritique, FactCheck, Metric
+from dspy import Evaluate,SelfCritique, FactCheck, Metric
 from typing import List, Dict, Any
 
 class FinancialRAGEvaluator:
