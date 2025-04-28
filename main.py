@@ -26,12 +26,16 @@ else:
 print(f"=========================================")
 print(f"Analyzing ticker: {stock_ticker}")
 print(f"")
-print(f"We will provide recommendations on whether this stock should be swung traded or day traded or neither")
+print(f"Ticker will be evaluated for day trading or")
+print(f"swing trading.")
 print(f"=========================================")
 # ======================================================
 # Part 1 API - only 25 calls a day so dont wear it out
 # get single stock
 # alpha_vantage_single_stock
+print(f"=========================================")
+print(f" Part 1 - Pull Single Stock from API")
+print(f"=========================================")
 production_mode = False
 if production_mode:
     stock = AlphaVantageSingleStock(stock_ticker)
@@ -43,7 +47,10 @@ if production_mode:
 # can build multiple tokenizer but for the sake
 # of this project will just hack off the end of the
 # transcript.
-production_mode = True
+print(f"================================================")
+print(f" Part 2 - Extract / Convert Transcript / Data")
+print(f"================================================")
+production_mode = False
 if production_mode:
     extractor = TranscriptExtractor("data/earnings_transcript_data_current_quarter.json", debug=True)
     transcript = extractor.process()
@@ -51,6 +58,9 @@ if production_mode:
 # ======================================================
 # Part 3 - Key Word RAG - extracting key information for later from earnings call transcript using DSPy
 # from dspy_earnings_call - results stored as dspy_processed_earnings_call.txt
+print(f"================================================")
+print(f" Part 3 - DSPy - Financial Tools and Metrics")
+print(f"================================================")
 production_mode = False
 if production_mode:
     call_processor = EarningsCallProcessor()
@@ -69,6 +79,9 @@ if production_mode:
 
 # ======================================================
 # Part 4 BestMatching25 - ranking function - old (but good) school search
+print(f"================================================")
+print(f" Part 4 - Best Matching Common Search")
+print(f"================================================")
 production_mode = False
 if production_mode:
     custom_documents = []
@@ -82,6 +95,9 @@ if production_mode:
 # Part 4 Key Word RAG
 # from financial_analysis_swing_trading
 # from financials_daily_analysis
+print(f"================================================")
+print(f" Part 4.1 - Financial Rules Matching")
+print(f"================================================")
 production_mode = False
 if production_mode:
     analyzer = DailyMetricsAnalyzer('data/daily_data.csv')
@@ -101,19 +117,29 @@ if production_mode:
     saved_file_path = financial_results.save_to_file()
 # # ======================================================
 # # Part 5 Model Context Protocol - Claude only
-# runner = FinancialAnalysisRunner()
-# runner.show_available_metrics()
-# runner.run_ratio_analysis()
-# runner.run_trend_analysis()
-# runner.run_comparative_analysis()
-# runner.run_custom_analysis()
+print(f"================================================")
+print(f" Part 5.1 - Model Context Protocol")
+print(f"================================================")
+production_mode = False
+if production_mode:
+    runner = FinancialAnalysisRunner()
+    runner.show_available_metrics()
+    runner.run_ratio_analysis()
+    runner.run_trend_analysis()
+    runner.run_comparative_analysis()
+    runner.run_custom_analysis()
 # # ======================================================
 # # Part 6 website
 ## see - project-seven directory
 # # ======================================================
+print(f"================================================")
+print(f" Part 6 - Special Sections for Website")
+print(f"================================================")
 # # Part 7 evaluator
-## see - project-seven directory
-# runner = FinancialRAGTestRunner(FinancialRAGEvaluator)
-# runner.run()
+# This section for backtesting
+print(f"================================================")
+print(f" Part 7 - Backtesting and Evaluation")
+print(f"================================================")
+
 
 
