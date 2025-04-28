@@ -36,7 +36,7 @@ print(f"=========================================")
 print(f"=========================================")
 print(f" Part 1 - Pull Single Stock from API")
 print(f"=========================================")
-production_mode = False
+production_mode = True
 if production_mode:
     stock = AlphaVantageSingleStock(stock_ticker)
     all_data = stock.get_all_data()
@@ -50,7 +50,7 @@ if production_mode:
 print(f"================================================")
 print(f" Part 2 - Extract / Convert Transcript / Data")
 print(f"================================================")
-production_mode = False
+production_mode = True
 if production_mode:
     extractor = TranscriptExtractor("data/earnings_transcript_data_current_quarter.json", debug=True)
     transcript = extractor.process()
@@ -61,7 +61,7 @@ if production_mode:
 print(f"================================================")
 print(f" Part 3 - DSPy - Financial Tools and Metrics")
 print(f"================================================")
-production_mode = False
+production_mode = True
 if production_mode:
     call_processor = EarningsCallProcessor()
     financial_extractor = FinancialExtractorComponent()
@@ -82,7 +82,7 @@ if production_mode:
 print(f"================================================")
 print(f" Part 4 - Best Matching Common Search")
 print(f"================================================")
-production_mode = False
+production_mode = True
 if production_mode:
     custom_documents = []
 
@@ -98,7 +98,7 @@ if production_mode:
 print(f"================================================")
 print(f" Part 4.1 - Financial Rules Matching")
 print(f"================================================")
-production_mode = False
+production_mode = True
 if production_mode:
     analyzer = DailyMetricsAnalyzer('data/daily_data.csv')
     analyzer.print_summary()
@@ -120,7 +120,7 @@ if production_mode:
 print(f"================================================")
 print(f" Part 5.1 - Model Context Protocol")
 print(f"================================================")
-production_mode = False
+production_mode = True
 if production_mode:
     runner = FinancialAnalysisRunner()
     runner.show_available_metrics()
