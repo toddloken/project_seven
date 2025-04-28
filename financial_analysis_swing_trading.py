@@ -70,6 +70,12 @@ class SwingTradeAnalyzer:
         fm_atr_42 = atr_42.dropna().iloc[-1]
         fm_vwap = vwap.dropna().iloc[-1]
 
+        print("Latest RSI:", fm_rsi)
+        print("Latest 14Day ATR:", fm_atr_14)
+        print("Latest 28Day ATR:", fm_atr_28)
+        print("Latest 42Day ATR:", fm_atr_42)
+        print("Latest VWAP:", fm_vwap)
+
         return fm_rsi, fm_atr_14, fm_atr_28, fm_atr_42, fm_vwap
 
     def get_swing_trade_recommendation(self):
@@ -77,4 +83,8 @@ class SwingTradeAnalyzer:
         fm_score, fm_recommendation = self.evaluate_swing_trading(
             fm_rsi, fm_atr_14, fm_atr_28, fm_atr_42, fm_vwap
         )
+
+        print("Swing Trade Rating Score:", fm_score)
+        print("Swing Trade Recommendation:", fm_recommendation)
+
         return fm_score, fm_recommendation

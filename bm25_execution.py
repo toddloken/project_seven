@@ -103,9 +103,3 @@ class BM25Execution:
                 print(f"Total score: {details:.4f}")
 
 
-# Sample usage
-if __name__ == "__main__":
-    bm25 = BM25()
-    query = "support outpouring volatile unanticipated uncertainty weekly churn medicare advantage rates"
-    bm25.print_search_results(query)
-    bm25.print_score_explanation(query, doc_id=0)
