@@ -22,24 +22,46 @@ class ClaudeAPIClient:
             "anthropic-version": "2023-06-01"
         }
 
-    def send_message(self, prompt: str, max_tokens: int = 4000) -> Dict[str, Any]:
-        """Send a message to Claude API and return the response"""
+    def send_message(self, prompt: str, max_tokens: int = 4000, max_retries: int = 3) -> Dict[str, Any]:
+        """Send a message to Claude API with retry logic"""
         payload = {
             "model": self.model,
             "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}]
         }
 
-        try:
-            response = requests.post(
-                self.API_URL,
-                headers=self.headers,
-                json=payload
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"API request failed: {e}")
+        retries = 0
+        backoff_time = 1  # Start with 1 second
+
+        while retries <= max_retries:
+            try:
+                response = requests.post(
+                    self.API_URL,
+                    headers=self.headers,
+                    json=payload
+                )
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.HTTPError as e:
+                status_code = e.response.status_code
+
+                # Handle specific error codes
+                if status_code in [429, 503, 529]:  # Rate limit or server overload
+                    retries += 1
+                    if retries <= max_retries:
+                        # Exponential backoff with jitter
+                        import random
+                        sleep_time = backoff_time + (random.randint(0, 1000) / 1000)
+                        print(f"API rate limited or server busy. Retrying in {sleep_time:.2f} seconds...")
+                        import time
+                        time.sleep(sleep_time)
+                        backoff_time *= 2  # Exponential backoff
+                        continue
+
+                # If we've exhausted retries or it's another error
+                raise Exception(f"API request failed after {retries} retries: {e}")
+            except requests.exceptions.RequestException as e:
+                raise Exception(f"API request failed: {e}")
 
     def extract_content(self, response: Dict[str, Any]) -> str:
         """Extract the content from Claude's response"""
