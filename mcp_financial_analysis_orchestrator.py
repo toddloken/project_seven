@@ -4,6 +4,7 @@ from pprint import pprint
 from mcp_financial_analysis_prep import FinancialAnalysisMCP, QueryType, FinancialStatement
 from mcp_financial_client_claude import FinancialAnalysisClient
 
+
 class FinancialAnalysisRunner:
     def __init__(self, api_key=None, data_dir="./"):
         self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY", "your_api_key_here")

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional, Union, Any
 from enum import Enum
-
+from lxml import etree
 
 class QueryType(Enum):
     RATIO_ANALYSIS = "ratio_analysis"
@@ -266,23 +266,46 @@ class FinancialAnalysisMCP:
         return data_context
 
     def parse_analysis_response(self, response: str) -> Dict:
-        """Parse the XML response from Claude into a structured format"""
+        """Parse the XML response from Claude into a structured format with improved error handling"""
         try:
             # Extract the XML portion using regex
             xml_pattern = r"<financial_analysis>(.*?)</financial_analysis>"
             match = re.search(xml_pattern, response, re.DOTALL)
 
             if not match:
-                raise ValueError("No valid financial_analysis XML found in the response")
+                # If XML tags aren't found, try to parse the response as JSON or return a structured error
+                try:
+                    # Check if it's a JSON response
+                    json_data = json.loads(response)
+                    return self._convert_json_to_standard_format(json_data)
+                except json.JSONDecodeError:
+                    # If not JSON either, return a minimal valid structure with error info
+                    return {
+                        "summary": "Error: Could not parse response",
+                        "metrics": [],
+                        "trends": "No valid data found",
+                        "recommendations": "Please check the API response format"
+                    }
 
-            match = re.search(r"(<financial_analysis>.*?</financial_analysis>)", response, re.DOTALL)
-            if not match:
-                raise ValueError("No valid financial_analysis XML found in the response")
+            # Get the full XML string
+            full_xml = f"<financial_analysis>{match.group(1)}</financial_analysis>"
 
-            xml_str = match.group(1)
+            # Pre-process the XML to fix common issues
+            processed_xml = self._preprocess_xml(full_xml)
 
-            # Parse the XML
-            root = ET.fromstring(xml_str)
+            try:
+                # Try using the standard ElementTree parser first
+                root = ET.fromstring(processed_xml)
+            except ET.ParseError:
+                # If standard parser fails, try using lxml with recovery mode
+                try:
+                    import lxml.etree as lxml_ET
+                    parser = lxml_ET.XMLParser(recover=True)
+                    root = lxml_ET.fromstring(processed_xml.encode('utf-8'), parser)
+                except ImportError:
+                    # If lxml isn't available, try a more aggressive cleanup
+                    processed_xml = self._aggressive_xml_cleanup(processed_xml)
+                    root = ET.fromstring(processed_xml)
 
             # Extract summary
             summary = root.find("summary").text.strip() if root.find("summary") is not None else ""
@@ -301,7 +324,7 @@ class FinancialAnalysisMCP:
                     metric["values"].append({
                         "year": value_elem.get("year"),
                         "company": value_elem.get("company"),
-                        "value": value_elem.text.strip()
+                        "value": value_elem.text.strip() if value_elem.text else ""
                     })
 
                 metrics.append(metric)
@@ -321,7 +344,61 @@ class FinancialAnalysisMCP:
             }
 
         except Exception as e:
-            raise Exception(f"Error parsing analysis response: {e}")
+            # Log the error and include part of the problematic response
+            error_snippet = response[:100] + "..." if len(response) > 100 else response
+            print(f"Error parsing response: {e}")
+            print(f"Response snippet: {error_snippet}")
+
+            # Return a minimal valid structure rather than raising an exception
+            return {
+                "summary": f"Error parsing response: {e}",
+                "metrics": [],
+                "trends": "Error in parsing",
+                "recommendations": "Please check the response format"
+            }
+
+    def _preprocess_xml(self, xml_str: str) -> str:
+        """Pre-process XML to handle common issues"""
+        # Replace problematic characters
+        xml_str = xml_str.replace('&', '&amp;')
+
+        # Fix unclosed tags (this is a simple approach and might need enhancement)
+        open_tags = re.findall(r'<(\w+)[^/>]*>', xml_str)
+        closed_tags = re.findall(r'</(\w+)>', xml_str)
+
+        for tag in open_tags:
+            if tag not in closed_tags:
+                xml_str += f"</{tag}>"
+
+        return xml_str
+
+    def _aggressive_xml_cleanup(self, xml_str: str) -> str:
+        """More aggressive XML cleanup for problematic responses"""
+        # Remove any XML declaration
+        xml_str = re.sub(r'<\?xml[^>]+\?>', '', xml_str)
+
+        # Escape all special characters in text content
+        xml_str = re.sub(r'(?<=>)([^<]+)(?=<)',
+                         lambda m: m.group(1)
+                         .replace('&', '&amp;')
+                         .replace('<', '&lt;')
+                         .replace('>', '&gt;')
+                         .replace('"', '&quot;')
+                         .replace("'", '&apos;'),
+                         xml_str)
+
+        return xml_str
+
+    def _convert_json_to_standard_format(self, json_data: Dict) -> Dict:
+        """Convert JSON response to the standard format expected by the application"""
+        # Implement conversion logic based on your JSON structure
+        # This is a placeholder - you'll need to adjust based on your actual JSON format
+        return {
+            "summary": json_data.get("summary", ""),
+            "metrics": json_data.get("metrics", []),
+            "trends": json_data.get("trends", ""),
+            "recommendations": json_data.get("recommendations", "")
+        }
 
     def ratio_analysis(
             self,
