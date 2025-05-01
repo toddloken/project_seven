@@ -10,6 +10,7 @@ from financial_analysis_swing_trading import  SwingTradeAnalyzer
 from financial_daily_analysis import DailyMetricsAnalyzer
 from mcp_financial_analysis_orchestrator import FinancialAnalysisRunner
 from financial_results import FinancialAnalysisResults
+from final_recommendation import Recommendations
 
 production_mode = False
 
@@ -135,11 +136,12 @@ if production_mode:
 print(f"================================================")
 print(f" Part 6 - Special Sections for Website")
 print(f"================================================")
-# # Part 7 evaluator
-# This section for backtesting
 print(f"================================================")
 print(f" Part 7 - Backtesting and Evaluation")
 print(f"================================================")
-
-
-
+production_mode = True
+if production_mode:
+    recommendations = Recommendations()
+    recommendations.swing_trading_analysis(ticker_symbol=stock_ticker)
+    recommendations.day_trading_analysis(ticker_symbol=stock_ticker)
+    recommendations.backtest_summary(ticker_symbol=stock_ticker)

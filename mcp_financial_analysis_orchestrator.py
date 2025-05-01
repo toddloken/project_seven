@@ -49,7 +49,7 @@ class FinancialAnalysisRunner:
     def run_comparative_analysis(self):
         print("\n\n=== COMPARATIVE ANALYSIS EXAMPLE ===")
         result = self.client.perform_comparative_analysis(
-            companies=["UNH", "AAPL"],
+            companies=["UNH", "HUM"],
             metrics=["netIncomeRatio", "totalAssets"],
             start_year="2021",
             end_year="2023",
